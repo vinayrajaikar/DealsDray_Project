@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
+import { FaUserCircle } from 'react-icons/fa'; 
 import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom';
 
 const navItems = [
   { name: 'Home', path: '/' },
   { name: 'Employee List', path: '/employees' },
+  
 ];
 
 export function Layout() {
@@ -12,8 +14,7 @@ export function Layout() {
   const navigate = useNavigate(); // Use useNavigate hook
 
   const handleLogout = () => {
-    // Implement logout logic here
-    // For now, we'll just navigate to the login page
+    localStorage.removeItem('adminName');
     navigate('/login');
   };
 
@@ -25,6 +26,12 @@ export function Layout() {
             <span className="self-center text-xl font-semibold whitespace-nowrap">Admin Panel</span>
           </Link>
           <div className="flex items-center lg:order-2">
+
+          <div className="flex items-center space-x-2">
+              <FaUserCircle className="text-gray-700 text-2xl" />
+              <span className="text-gray-700">{localStorage.getItem('adminName')}</span>
+          </div>
+
             <button
               onClick={handleLogout}
               className="text-gray-800 hover:bg-gray-50 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 py-2 lg:px-5 lg:py-2.5 mr-2 focus:outline-none"

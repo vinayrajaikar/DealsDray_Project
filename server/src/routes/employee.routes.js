@@ -15,7 +15,7 @@ router.route("/create-employee").post(
 );
 
 // update employee
-router.route("/update-employee/:id").post(updateEmployee);
+router.route("/update-employee/:id").put(updateEmployee);
 
 // delete employee
 router.route("/delete-employee/:id").delete(deleteEmployee);

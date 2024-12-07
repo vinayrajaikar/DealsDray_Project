@@ -1,43 +1,57 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-
-// Mock function to fetch employee data
-const fetchEmployee = (id) => {
-  // In a real application, this would be an API call
-  return Promise.resolve({
-    id,
-    name: 'John Doe',
-    email: 'john@example.com',
-    mobile: '1234567890',
-    designation: 'Manager',
-  });
-};
+import { useDispatch, useSelector } from 'react-redux';
+import { updateEmployee, getEmployee } from '../Redux/Slices/employeeSlice'; // Assuming you have this action
 
 export default function UpdateEmployee() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [mobile, setMobile] = useState('');
+  const [mobile_no, setMobile_no] = useState('');
   const [designation, setDesignation] = useState('');
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const { id } = useParams();
 
-  useEffect(() => {
-    fetchEmployee(id).then((employee) => {
-      setName(employee.name);
-      setEmail(employee.email);
-      setMobile(employee.mobile);
-      setDesignation(employee.designation);
-    });
-  }, [id]);
+  // Get employee data from the Redux store
+  const employee = useSelector((state) => state.employee.employeeDetails);
 
-  const handleSubmit = (e) => {
+  useEffect(() => {
+    const fetchEmployeeDetails = async () => {
+      try {
+        const res=await dispatch(getEmployee(id)); // This will trigger the Redux action to fetch data
+        // console.log(res.payload.data)
+        setName(res.payload.data.name);
+        setEmail(res.payload.data.email);
+        setMobile_no(res.payload.data.mobile_no);
+        setDesignation(res.payload.data.designation);
+      } 
+      catch (error) {
+        console.error('Error fetching employee details:', error);
+      }
+    };
+
+    fetchEmployeeDetails();
+  }, []); // Fetch employee data when id changes
+
+
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Implement the logic to update the employee here
-    console.log('Updated employee:', { id, name, email, mobile, designation });
-    // Show a success message (you might want to use a proper toast notification in a real app)
-    alert('Employee updated successfully!');
-    navigate('/employees');
-  };
+    // console.log(id);  // Make sure 'id' is defined and accessible
+
+    // Dispatch the action to update employee details with the id
+    const res = await dispatch(updateEmployee({ details: { name, email, mobile_no, designation }, id }));
+
+    // console.log(res);  // Check the result
+
+    if (res.type === 'updateEmployee/fulfilled') {  // Check if the action was fulfilled
+        alert('Employee updated successfully!');
+        navigate('/employees');  // Navigate to employee list after successful update
+    } else {
+        alert('Failed to update employee!');  // If action failed
+    }
+};
+
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -66,12 +80,12 @@ export default function UpdateEmployee() {
           />
         </div>
         <div className="mb-4">
-          <label htmlFor="mobile" className="block text-sm font-medium text-gray-700">Mobile Number</label>
+          <label htmlFor="mobile_no" className="block text-sm font-medium text-gray-700">Mobile Number</label>
           <input
             type="tel"
-            id="mobile"
-            value={mobile}
-            onChange={(e) => setMobile(e.target.value)}
+            id="mobile_no"
+            value={mobile_no}
+            onChange={(e) => setMobile_no(e.target.value)}
             required
             className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
           />
@@ -84,15 +98,6 @@ export default function UpdateEmployee() {
             value={designation}
             onChange={(e) => setDesignation(e.target.value)}
             required
-            className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-          />
-        </div>
-        <div className="mb-4">
-          <label htmlFor="image" className="block text-sm font-medium text-gray-700">Update Image</label>
-          <input
-            type="file"
-            id="image"
-            accept="image/*"
             className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
           />
         </div>
@@ -115,4 +120,3 @@ export default function UpdateEmployee() {
     </div>
   );
 }
-

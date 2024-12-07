@@ -1,15 +1,40 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import {getAllEmployees, deleteEmployee} from '../Redux/Slices/employeeSlice';
 
-// Mock data for employees
-const employees = [
-  { id: 1, name: 'John Doe', email: 'john@example.com', mobile: '1234567890', designation: 'Manager' },
-  { id: 2, name: 'Jane Smith', email: 'jane@example.com', mobile: '9876543210', designation: 'Developer' },
-  // Add more employees as needed
-];
 
 export default function EmployeeList() {
   const [searchTerm, setSearchTerm] = useState('');
+  const dispatch = useDispatch();
+  const [employees, setEmployees] = useState([]);
+
+  const fetchAllEmployees = async () => {
+    try {
+        const resultAction = await dispatch(getAllEmployees());
+        // Access the payload using `unwrapResult` if you need just the payload.
+        console.log(resultAction.payload.data)
+        setEmployees(resultAction.payload.data);
+
+    } catch (error) {
+        console.error("Failed to fetch employees: ", error);
+    }
+};
+
+  useEffect(() => {
+      fetchAllEmployees();
+  }, []);
+
+  const deleteEmployeee = async (id) => {
+    try {
+      const res=await dispatch(deleteEmployee(id));
+      console.log(res);
+      fetchAllEmployees();
+    } catch (error) {
+      console.error("Failed to delete employee: ", error);
+    }
+  };
+
 
   const filteredEmployees = employees.filter(employee =>
     employee.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -37,6 +62,7 @@ export default function EmployeeList() {
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Employee_id</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mobile</th>
@@ -46,14 +72,15 @@ export default function EmployeeList() {
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {filteredEmployees.map((employee) => (
-              <tr key={employee.id}>
+              <tr key={employee.employee_id}>
+                <td className="px-6 py-4 whitespace-nowrap">{employee.employee_id}</td>
                 <td className="px-6 py-4 whitespace-nowrap">{employee.name}</td>
                 <td className="px-6 py-4 whitespace-nowrap">{employee.email}</td>
-                <td className="px-6 py-4 whitespace-nowrap">{employee.mobile}</td>
+                <td className="px-6 py-4 whitespace-nowrap">{employee.mobile_no}</td>
                 <td className="px-6 py-4 whitespace-nowrap">{employee.designation}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <Link to={`/update-employee/${employee.id}`} className="text-blue-600 hover:text-blue-900 mr-4">Edit</Link>
-                  <button className="text-red-600 hover:text-red-900">Delete</button>
+                  <Link to={`/update-employee/${employee.employee_id}`} className="text-blue-600 hover:text-blue-900 mr-4">Edit</Link>
+                  <button className="text-red-600 hover:text-red-900" onClick={() => deleteEmployeee(employee.employee_id)} >Delete</button>
                 </td>
               </tr>
             ))}
