@@ -39,17 +39,17 @@ const isAdmin = asyncHandler(async (req, res, next) => {
     const {adminName, password} = req.body;
 
     if (!adminName || !password) {
-        return next(new ApiError(400,"All Fields are required"));
+        return(new ApiError(400,"All Fields are required"));
     }
 
     const admin = await Admin.findOne({adminName});
 
     if(!admin){
-        return next(new ApiError(404,"Admin not found"));
+        return (new ApiError(404,"Admin not found"));
     }
 
     if(admin.password !== password){
-        return next(new ApiError(400,"Invalid password"));
+        return(new ApiError(400,"Invalid password"));
     }
     // console.log(admin);
 

@@ -49,57 +49,61 @@ const createEmployee = asyncHandler(async (req, res, next) => {
 
 const updateEmployee = asyncHandler(async (req, res, next) => {
     const employee_id = req.params.id;
-    const {name, email, mobile_no, designation } = req.body;
+    const { name, email, mobile_no, designation } = req.body;
 
+    // Check if all required fields are provided
     if (!name || !email || !mobile_no || !designation) {
-        return next(new ApiError(400,"All Fields are required"));
+        return next(new ApiError(400, "All Fields are required"));
     }
 
-    const existedemployee = await Employee.findOne({
-        $or: [{employee_id},{email:{ $ne: email }},{mobile_no:{ $ne: mobile_no }}]
+    // Check if employee with the same email or mobile_no already exists
+    const existedEmployee = await Employee.findOne({
+        $and: [
+            { employee_id: { $ne: employee_id } },  // Ensure we're not updating the same employee
+            { $or: [
+                { email: email },  // Check if email already exists
+                { mobile_no: mobile_no }  // Check if mobile_no already exists
+            ]}
+        ]
     });
-    
-    console.log(existedemployee);
-    const id=existedemployee?._id;
 
+    if (existedEmployee) {
+        return next(new ApiError(400, "Employee with this email or mobile number already exists"));
+    }  
+
+    // Find the employee by ID and update their details
     const employee = await Employee.findOneAndUpdate(
-        employee_id ,
-        { 
-            $set: {name, email, mobile_no, designation }
-        },
-        { new: true }
+        { employee_id },  // Query to find employee by their ID
+        { $set: { name, email, mobile_no, designation } },  // Update fields
+        { new: true }  // Return the updated employee document
     );
 
-    if(!employee){
-        return next(new ApiError(500,"Failed to update employee"));
+    if (!employee) {
+        return next(new ApiError(500, "Failed to update employee"));
     }
 
-    return res.status(201).json(
-        new ApiResponse(
-            200, 
-            employee, 
-            "Employee updated successfully"
-        )
-    )
-})
+    // Respond with updated employee data
+    return res.status(200).json(
+        new ApiResponse(200, employee, "Employee updated successfully")
+    );
+});
+
 
 const deleteEmployee = asyncHandler(async (req, res, next) => {
     const employee_id = req.params.id;
+    // console.log(employee_id);
 
-    const employee = await Employee.findOneAndDelete(employee_id);
+    const employee = await Employee.findOneAndDelete({employee_id });
 
-    if(!employee){
-        return next(new ApiError(500,"Failed to delete employee"));
+    if (!employee) {
+        return next(new ApiError(500, "Failed to delete employee"));
     }
 
-    return res.status(201).json(
-        new ApiResponse(
-            200, 
-            employee, 
-            "Employee deleted successfully"
-        )
-    )
-})
+    return res.status(200).json(
+        new ApiResponse(200, employee, "Employee deleted successfully")
+    );
+});
+
 
 const getEmployee = asyncHandler(async (req, res, next) => {
     const employee_id = req.params.id;

@@ -22,11 +22,11 @@ export const isAdmin = createAsyncThunk(
         console.log(details)
         // const response = await axiosInstance.get("Verify-Admin",{ "adminName":"Vinay",
         //     "password":"123"   });
-        const response=await axios.get("http://localhost:8000/api/v1/Verify-Admin",{
+        const response=await axios.post("http://localhost:8000/api/v1/Verify-Admin",{
             "adminName":"Vinay",
             "password":"123"   
         })
-        console.log("Hello")
+        console.log("Hello");
         return response.data
     }
 )

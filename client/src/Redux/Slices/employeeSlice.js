@@ -16,17 +16,27 @@ export const createEmployee = createAsyncThunk(
 )
 
 export const updateEmployee = createAsyncThunk(
-    "updateEmployee",
-    async(details)=>{
-        const response = await axiosInstance.post("update-employee",details);
-        return response.data
+    "updateEmployee",  // Action type string
+    async (data) => {
+        try {
+            // console.log(id);
+            console.log(data.details);
+            console.log(data.id);
+            // Send POST request to update employee using Axios
+            const response = await axiosInstance.put(`/update-employee/${data.id}`,data.details);  // Use PUT if you're updating, not POST
+            return response.data;  // Return the data to the reducer
+        } catch (error) {
+            // Handle error and throw it to be caught by Redux
+            throw new Error(error.response ? error.response.data.message : error.message);
+        }
     }
-)
+);
+
 
 export const deleteEmployee = createAsyncThunk(
     "deleteEmployee",
     async(details)=>{
-        const response = await axiosInstance.post(`delete-employee/${details}`);
+        const response = await axiosInstance.delete(`delete-employee/${details}`);
         return response.data
     }
 )
@@ -35,6 +45,7 @@ export const getEmployee = createAsyncThunk(
     "getEmployee",
     async(details)=>{
         const response = await axiosInstance.get(`get-employee/${details}`);
+        console.log(response)
         return response.data
     }
 )

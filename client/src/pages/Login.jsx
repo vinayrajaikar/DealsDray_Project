@@ -14,14 +14,18 @@ export default function LoginPage() {
     e.preventDefault();
 
     const response = await dispatch(isAdmin({adminName:username,password}));
-    console.log(response);
+    console.log(response.payload.data.adminName);
     // if(response.payload.status === 200){
     //     navigate('/employees');
-
+    const name=response.payload.data.adminName;
+    // console.log(name)
+    const passwordd=response.payload.data.password;
+    // console.log(passwordd)
 
 
     // Implement actual authentication logic here
-    if (username === 'admin' && password === 'password') {
+    if (username === name && password === passwordd) {
+      localStorage.setItem('adminName', name);
       navigate('/');
     } else {
       setError('Invalid username or password');
