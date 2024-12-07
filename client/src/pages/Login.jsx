@@ -1,14 +1,25 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import {useDispatch} from 'react-redux';
+import { isAdmin } from '../Redux/Slices/adminAuthSlice';
 
 export default function LoginPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async(e) => {
     e.preventDefault();
+
+    const response = await dispatch(isAdmin({adminName:username,password}));
+    console.log(response);
+    // if(response.payload.status === 200){
+    //     navigate('/employees');
+
+
+
     // Implement actual authentication logic here
     if (username === 'admin' && password === 'password') {
       navigate('/');
